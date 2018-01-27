@@ -1,14 +1,14 @@
 {
   "appKey": "",
   "appSecret": "",
+  "encryptJs": true,
   "excludeScenes": [],
   "includeAnySDK": false,
   "includeSDKBox": false,
-  "includeSdk": [
-    "anysdk"
-  ],
   "inlineSpriteFrames": true,
   "inlineSpriteFrames_native": true,
+  "jailbreakPlatform": false,
+  "md5Cache": false,
   "mergeStartScene": false,
   "oauthLoginServer": "",
   "optimizeHotUpdate": false,
@@ -21,7 +21,13 @@
   "packageName": "org.cocos2d.killers",
   "privateKey": "",
   "renderMode": "0",
-  "startScene": "b3984302-0352-47d8-9f70-a322d9304129",
+  "startScene": "a6178053-0123-4df0-9d8b-1453fab7fcd1",
   "title": "killers",
-  "webOrientation": "auto"
+  "webOrientation": "auto",
+  "wechatgame": {
+    "appid": "",
+    "orientation": "portrait"
+  },
+  "xxteaKey": "94433bfb-e4ee-46",
+  "zipCompressJs": true
 }

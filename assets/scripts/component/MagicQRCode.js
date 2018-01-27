@@ -1250,7 +1250,48 @@ let MagicQRCode = cc.Class({
                 }
                 this.setContent();
             },
-        }
+        },
+
+        backColor: {
+            type: cc.Color,
+            default: cc.Color.WHITE,
+            notify(old) {
+                // if (cc.colorEqual(old, this.backColor)) {
+                //     return;
+                // }
+                this.setContent();
+            },
+        },
+
+        foreColor: {
+            type: cc.Color,
+            default: cc.Color.BLACK,
+            notify(old) {
+                // if (cc.colorEqual(old, this.foreColor)) {
+                //     return;
+                // }
+                this.node.color = this.fillColor;
+                this.setContent();
+            },
+            // get() {
+            //     return this.node.color;        
+            // },
+            // set(color) {
+            //     this.node.color = color;
+            //     this.setContent();   
+            // }
+        },
+
+        margin: {
+            type: cc.Float,
+            default: 10,
+            notify(old) {
+                if (old === this.margin) {
+                    return;
+                }
+                this.setContent();
+            }
+        },
     },
 
     onLoad() {
@@ -1258,20 +1299,32 @@ let MagicQRCode = cc.Class({
         if (CC_EDITOR) {
             let setNodeColor = this.node._sizeProvider.setColor;
             this.node._sizeProvider.setColor = (color) => {
-                setNodeColor.call(this.node._sizeProvider, color);
-                this.setContent();    
+                this.foreColor = color;
+                // setNodeColor.call(this.node._sizeProvider, color);
+                // this.setContent();
             }
         }
     },
 
+
+  
+
     setContent() {
+        this.clear();
+        //背景色
+        this._sgNode.fillColor = this.backColor;
+        let rect = this.node.getBoundingBox();
+        this.rect(0, 0, rect.width, rect.height);
+        this.fill();
+        this.close();
+        //生成二维码数据
         let qrcode = new QRCode(-1, 2);
         qrcode.addData(this.string);
         qrcode.make();
-        this._sgNode.fillColor = this.node.color;
-        let size = this.node.width;
+        this._sgNode.fillColor = this.foreColor;
+        let size = rect.width - this.margin * 2;
         let num = qrcode.getModuleCount();
-        this.clear();
+        
         let tileW = size / num;
         let tileH = size / num;
         let w = Math.ceil(tileW);
@@ -1279,12 +1332,14 @@ let MagicQRCode = cc.Class({
         for (let row = 0; row < num; row++) {
             for (let col = 0; col < num; col++) {
                 if (qrcode.isDark(row, col)) {
-                    this.rect(col * tileW, size - tileH - Math.round(row * tileH), w, h);
+                    this.rect(this.margin + col * tileW, size - tileH - Math.round(row * tileH) + this.margin, w, h);
                     this.fill();
                 }
             }
         }
-    }
+    },
+
+    
 });
 
 cc.Class.Attr.setClassAttr(MagicQRCode, 'lineWidth', 'visible', false);
