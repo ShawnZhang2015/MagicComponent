@@ -1243,7 +1243,7 @@ let MagicQRCode = cc.Class({
     extends: cc.Graphics,
     properties: {
         string: {
-            default: '',
+            default: 'Hello World!',
             notify(oldValue) {
                 if (this.string === oldValue) {
                     return;
@@ -1255,10 +1255,7 @@ let MagicQRCode = cc.Class({
         backColor: {
             type: cc.Color,
             default: cc.Color.WHITE,
-            notify(old) {
-                // if (cc.colorEqual(old, this.backColor)) {
-                //     return;
-                // }
+            notify() {
                 this.setContent();
             },
         },
@@ -1267,19 +1264,9 @@ let MagicQRCode = cc.Class({
             type: cc.Color,
             default: cc.Color.BLACK,
             notify(old) {
-                // if (cc.colorEqual(old, this.foreColor)) {
-                //     return;
-                // }
                 this.node.color = this.fillColor;
                 this.setContent();
             },
-            // get() {
-            //     return this.node.color;        
-            // },
-            // set(color) {
-            //     this.node.color = color;
-            //     this.setContent();   
-            // }
         },
 
         margin: {
@@ -1292,9 +1279,28 @@ let MagicQRCode = cc.Class({
                 this.setContent();
             }
         },
+
+        _size: 200,
+        size: {
+            type: cc.Float,
+            get() {
+                return this._size;
+            },
+
+            set(value) {
+                if (this._size === value) {
+                    return;
+                }
+                
+                this.node.setContentSize(value, value);
+                this.setContent();
+                this._size = value;
+            },
+        }
     },
 
     onLoad() {
+        this.node.setContentSize(200, 200);
         this.setContent();
         if (CC_EDITOR) {
             let setNodeColor = this.node._sizeProvider.setColor;
@@ -1313,8 +1319,9 @@ let MagicQRCode = cc.Class({
         this.clear();
         //背景色
         this._sgNode.fillColor = this.backColor;
-        let rect = this.node.getBoundingBox();
-        this.rect(0, 0, rect.width, rect.height);
+        //let rect = this.node.getBoundingBox();
+        let width = this.node.width;
+        this.rect(0, 0, width, width);
         this.fill();
         this.close();
         //生成二维码数据
@@ -1322,7 +1329,7 @@ let MagicQRCode = cc.Class({
         qrcode.addData(this.string);
         qrcode.make();
         this._sgNode.fillColor = this.foreColor;
-        let size = rect.width - this.margin * 2;
+        let size = width - this.margin * 2;
         let num = qrcode.getModuleCount();
         
         let tileW = size / num;

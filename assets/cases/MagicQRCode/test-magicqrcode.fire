@@ -217,8 +217,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 300,
-      "height": 300
+      "width": 400,
+      "height": 400
     },
     "_rotationX": 0,
     "_rotationY": 0,
@@ -262,6 +262,7 @@
       "a": 255
     },
     "_miterLimit": 10,
+    "_size": 400,
     "_N$string": "https://github.com/ShawnZhang2015/MagicComponent",
     "_N$backColor": {
       "__type__": "cc.Color",
@@ -277,7 +278,7 @@
       "b": 0,
       "a": 255
     },
-    "_N$margin": 15
+    "_N$margin": 10
   },
   {
     "__type__": "cc.Canvas",
