@@ -14,6 +14,10 @@ let DataSource = cc.Class({
         item.getComponent(cc.Label).string = this.array[index];
     },
 
+    getCount() {
+        return this.array.length;
+    }
+
 });
 
 let uikiller = require('uikiller');
