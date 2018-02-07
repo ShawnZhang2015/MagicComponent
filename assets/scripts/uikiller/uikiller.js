@@ -48,6 +48,7 @@ const UIKiller = {
      */    
     bindComponent(component, options) {
         component.$options = options || {};
+    
         let root = component.node;
         root._components.forEach((nodeComponent) => {
             let name = this._getComponentName(nodeComponent);
@@ -77,15 +78,12 @@ const UIKiller = {
             }
             //更换绑定，删除之前绑定的节点
             delete target.$collector.node;
-
             //遍历收集器上的属性名，删除绑定属性
             Object.keys(target.$collector).forEach((key) => {
                 delete target[key];
             });
         }
         
-        
-
         //初始化收集器
         target.$collector = { node };
         //遍历根节点上的组件并绑定到target
@@ -135,13 +133,14 @@ const UIKiller = {
      */
     _bindNode(nodeObject, target) {
         const node = nodeObject;
-
+        let isBindNode = false;
         //绑定组件到自身node节点上
         if (node.name[0] === this._prefix) {
             node._components.forEach((component) => {
                 let name = this._getComponentName(component);
+                
                 name = `$${name}`;
-                if (this[name]) {
+                if (node[name] && target.$options.debug) {
                     cc.warn(`${name} property is already exists`);
                     return;
                 }
@@ -151,12 +150,23 @@ const UIKiller = {
                 if (UIKiller.isFunction(component.onBind)) {
                     component.onBind(target);
                 }
+                
+                if (component instanceof Thor) {
+                    //判定是否将要自行绑定的节点
+                    if (!isBindNode && component !== target) {
+                        isBindNode = true;
+                    }
+
+                    if (!node.active) {
+                        component.bindHammer();
+                    }
+                }
             });
         }
 
         //执行插件
         let bool = this._checkNodeByPlugins(node, target);
-        if (!bool) {
+        if (!bool || isBindNode) {
             return;
         }
         
@@ -175,7 +185,7 @@ const UIKiller = {
                     }
                 }
 
-                if (target[name]) {
+                if (target[name] && target.$options.debug) {
                     cc.warn(`${target.name}.${name} property is already exists`);
                     return;
                 }
@@ -245,15 +255,20 @@ const UIKiller = {
 
             node.on(eventTypes[index], (event) => {
                 //被禁用的node 节点不响应事件
-                let eventNode = event.target;
+                let eventNode = event.currentTarget;
                 if (eventNode.interactable === false || eventNode.active === false) {
                     return;
                 }
                 
                 //检查button组件是否有事件处理函数，有则执行插件事件处理
                 const button = eventNode.getComponent(cc.Button);
+                if (button && button.interactable === false) {
+                    return;
+                }
                 const eventFunc = target[eventName];
-                if (eventFunc || button.clickEvents.length) {
+                //是否有效事件
+                const isValidEvent = eventFunc || (button && button.clickEvents.length);
+                if (isValidEvent) {
                     this._beforeHandleEventByPlugins(eventNode, event, !!eventFunc);
                 }
                 
@@ -271,7 +286,7 @@ const UIKiller = {
                 }
 
                 //检查button组件是否有事件处理函数，有则执行插件事件处理
-                if (eventFunc || button.clickEvents.length) {
+                if (isValidEvent) {
                     this._afterHandleEventByPlugins(eventNode, event, !!eventFunc, eventResult);
                 }
             });
@@ -310,7 +325,6 @@ const UIKiller = {
             }, node.touchLongTime || 1000);
         });
     },
-
 
     /**
      * 拿所有插件去检查node 节点, onCheckNode返回为 false 的,此节点将不被绑定

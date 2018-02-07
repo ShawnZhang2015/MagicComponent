@@ -1,5 +1,4 @@
 
-
 let DataSource = cc.Class({
     array: null,
     ctor() {
@@ -20,23 +19,11 @@ let DataSource = cc.Class({
 
 });
 
-let uikiller = require('uikiller');
 cc.Class({
     extends: cc.Component,
 
-    properties: {    
-    },
-
-    // LIFE-CYCLE CALLBACKS:
-
     onLoad () {
-        uikiller.bindComponent(this);
-        this._magicListView.$MagicListView.dataSource = new DataSource();
+        let magicListView = this.node.getChildByName('_magicListView').getComponent('MagicListView');
+        magicListView.dataSource = new DataSource();
     },
-
-    start () {
-
-    },
-
-    // update (dt) {},
 });

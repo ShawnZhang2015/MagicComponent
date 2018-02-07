@@ -1,9 +1,6 @@
 
 cc.Class({
     extends: cc.Component,
-    editor: {
-        executeInEditMode: true,
-    },
 
     properties: {
        ITEM_PREFAB: cc.Prefab,
@@ -23,12 +20,18 @@ cc.Class({
        _scrollView: null,
     },
 
+    _init() {
+        if (!this._scrollView) {
+            let scrollView = this.node.getChildByName('scrollView');
+            this._scrollView = scrollView.getComponent(cc.ScrollView);
+            this.updateTimer = 0;
+            this.updateInterval = 0.1;
+            this.lastContentPosY = 0;
+        }
+    },
+
     onLoad () {
-        let scrollView = this.node.getChildByName('scrollView');
-        this._scrollView = scrollView.getComponent(cc.ScrollView);
-        this.updateTimer = 0;
-        this.updateInterval = 0.1;
-        this.lastContentPosY = 0;
+        this._init();
     },
 
     reload() {
@@ -36,6 +39,7 @@ cc.Class({
     },
 
     _updateItem() {
+        this._init();
         this._scrollView.content.removeAllChildren();
         this._listItems = [];
 
@@ -55,7 +59,7 @@ cc.Class({
             this._listItems.push(item);
             if (item.height * index++ > this.node.height) {
                 break;
-            } 
+            }
             item = cc.instantiate(this.ITEM_PREFAB);
         } while (index < count)
         
