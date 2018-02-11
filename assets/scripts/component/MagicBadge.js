@@ -16,6 +16,20 @@ let MagicBadge = cc.Class({
                 this.node.active = value;
             }
         },
+
+        _value: '',
+        value: {
+            get() {
+                return this._value;
+            },
+
+            set(value) {
+                if (this._label) {
+                    this._label.string = value || '';
+                    this._label.node.active = !!value;
+                }
+            },
+        }
     },
 
     statics: {
@@ -27,6 +41,24 @@ let MagicBadge = cc.Class({
             let detail = { badge: null };
             cc.director.emit(`$${id}`, detail);
             return detail.badge;
+        },
+
+        init(id, cb) {
+            let eventName = `BADGE_${id}_INIT_EVENT`;
+            cc.director.once(eventName, (event) => {
+                if (!cb) {
+                    return;
+                }
+                let badge = event.detail.badge;
+                let param = cb(badge);
+                
+                if (typeof param === 'object') {
+                    badge.active = param.active;
+                    badge.value = param.value;
+                } else {
+                    badge.active = !!param;    
+                }
+            });
         }
     },
 
@@ -37,6 +69,12 @@ let MagicBadge = cc.Class({
             this.listens.forEach(id => {
                 cc.director.on(id, this._onBadageEvent, this);
                 cc.director.on(`$${id}`, this._onBadgeFind, this);    
+            });
+
+            this.listens.forEach(id => {
+                let eventName = `BADGE_${id}_INIT_EVENT`;
+                let detail = { badge: this };
+                cc.director.emit(eventName, detail);
             });
         }
     },
@@ -51,13 +89,8 @@ let MagicBadge = cc.Class({
             cc.log('参数不存在');
         }
 
-        this.node.active = detail.active;
-        if (detail.active && detail.value) {
-            this._label.node.active = true;
-            this._label.string = detail.value;
-        } else {
-            this._label.node.active = false;
-        }
+        this.active = detail.active;
+        this.value = detail.value;
     },
 
     onDestroy() {
